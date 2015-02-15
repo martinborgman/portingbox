@@ -2,6 +2,7 @@
 *.ZIPEXE
 !/alphavm-free
 /alphavm-free/*
+!/alphavm-free/README.txt
 porting.dd
 *.zip
 *.ZIP

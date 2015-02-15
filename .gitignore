@@ -1,7 +1,7 @@
 *.zipexe
 *.ZIPEXE
-!alphavm-free
-alphavm-free/*
+!/alphavm-free
+/alphavm-free/*
 porting.dd
 *.zip
 *.ZIP

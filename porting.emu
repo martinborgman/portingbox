@@ -1,0 +1,433 @@
+###############################################################################
+# AlphaVM configuration file.
+###############################################################################
+
+#------------------------------------------------------------------------------
+# Emulated system configuration.
+#------------------------------------------------------------------------------
+system {
+    #--------------------------------------------------------------------------
+    # Emulated system type
+    #--------------------------------------------------------------------------
+    #type = ds10_466;
+    #type = ds10_616;
+    #type = ds10l_616;
+    #type = ds10l_616;
+    #type = xp900_466;
+    #type = xp1000_500;
+    #type = xp1000_667;
+    #type = xp1000_750;
+    #type = ds20_500;
+    #type = ds20e_500;
+    #type = ds20e_667;
+    #type = ds20e_833;
+    #type = ds20l_833;
+    #type = es40_500;
+    #type = es40_667;
+    type = es40_833;
+
+    #--------------------------------------------------------------------------
+    # Reported system type. This is the system type reported to system 
+    # information routines. 
+    # The default value is 'default', which means that the type is the same as
+    # the emulated type.
+    # Values: 
+    # as4000_667, as4100_667,
+    # ds10_466, ds10_616, ds10l_466, ds10l_616,
+    # xp900_466, xp1000_500, xp1000_667, xp1000_750,
+    # ds20_500, ds20e_500, ds20e_667, ds20e_833, ds20l_833,
+    # es40_500, es40_667, es40_833
+    # ds25_933, 
+    # es45_1000
+    #--------------------------------------------------------------------------
+    reported_type    = default;
+
+    #--------------------------------------------------------------------------
+    # Number of CPUs in trhe system.
+    # Default: 1
+    # ES40 - up to 4.
+    # DS20 - up to 2.
+    # DS10 - 1
+    # SMP configurations work only when there is enough CPU power.
+    # Otherwise CPU synchronization sanity check fails in OpenVMS.
+    # The free version supports just one CPU
+    #--------------------------------------------------------------------------
+    num_cpus    = 1;
+
+
+    #--------------------------------------------------------------------------
+    # System serial number. This is a string of max 16 characters long.
+    #--------------------------------------------------------------------------
+    ssn = 'EmuVM-00-000-001';
+
+    #--------------------------------------------------------------------------
+    # Number of timer interrupts per second.
+    # This is normally 1000 on Alpha.
+    #--------------------------------------------------------------------------
+    interval_clock_freq = 1000;
+
+    #--------------------------------------------------------------------------
+    # Emulated memory configuration.
+    #--------------------------------------------------------------------------
+    memory {
+        #----------------------------------------------------------------------
+        # Memory size in megabytes.
+        # There must be enough host memory available to avoid host OS swapping,
+        # which leads to performance degradation and SMP system CPU sanity checks.
+		# The free version is limited to 512mb
+        #----------------------------------------------------------------------
+        size    = 512;
+    }
+
+    #--------------------------------------------------------------------------
+    # Emulated CPU configuration.
+    # This configuration is used for all CPUs in the system.
+    #--------------------------------------------------------------------------
+    cpu {
+        #----------------------------------------------------------------------
+        # CPU server.
+        # This choses the CPU implementation used emulate Alpha.
+        # Values: basic, jit1, jit2.
+        # Default: basic
+        #
+        # Basic CPU is just an interpreter. 
+        # The free version has only basic CPU.
+        #
+        # JIT1 CPU is based on a simple JIT compiler. 
+        # It has performace on the level of EV4.
+        #
+        # JIT2 CPU has performance of EV6. 
+        #----------------------------------------------------------------------
+        server = basic;
+        #server = jit1;
+        #server = jit2;
+	
+        #----------------------------------------------------------------------
+	# PAL TBCHK is implemented. Default - yes.
+        #----------------------------------------------------------------------
+	#tbchk = no;
+
+        #----------------------------------------------------------------------
+        # JIT configuration for JIT-enabled CPUs.
+        #----------------------------------------------------------------------
+        jit {
+            #------------------------------------------------------------------
+            # Asynchonous JIT compiler. 
+            # Default: yes.
+            # This option is needed for debugging.
+            #------------------------------------------------------------------
+            async = yes;
+
+            #------------------------------------------------------------------
+            # Maximal amount of the JIT pages.
+            # Default: 512.
+            # You may want to set it 1024 for performance. 
+            # In JIT2 mode JIT pages consume a lot of memory.
+            # This amount is currently per CPU, so tune accordingly.
+            #------------------------------------------------------------------
+            #max_pages = 1024;
+
+            #------------------------------------------------------------------
+            # Enable experimental optimizations. Experimental features are
+            # not supported; they always have a field test status and are provided
+            # only for evaluation and testing.
+            #------------------------------------------------------------------
+            experimental = no;
+        }
+    }
+
+
+    #--------------------------------------------------------------------------
+    # Serial console.
+    # Connect Putty in RAW mode to localhost:20000.
+    # IMPORTANT!!!! Set putty options 
+    # * LOCAL ECHO 			to FORCED OFF
+    # * LOCAL LINE EDITING 		to FORCED OFF
+    #--------------------------------------------------------------------------
+    serial com1 {
+        #----------------------------------------------------------------------
+        # Serial emulation backend. Currently only socket.
+        # Later it will be possible to connect to real serial lines.
+        #----------------------------------------------------------------------
+        server  = socket;
+
+        #----------------------------------------------------------------------
+        # TCPIP port to connect a terminal emulator.
+        #----------------------------------------------------------------------
+        port    = 20000;
+
+        #----------------------------------------------------------------------
+        # The following parameters are used by the launcher and ignored by 
+        # the Alphavm executable.
+        #----------------------------------------------------------------------
+        #launch = yes;
+        #executable = 'C:\utils\putty.exe';
+        #arguments = '-load emuvm_com1 -P 20000';
+    }
+
+    #--------------------------------------------------------------------------
+    # COM2. See remarks about COM1.
+    #--------------------------------------------------------------------------
+    serial com2 {
+        server  = socket;
+        port    = 20001;
+    }
+
+    #--------------------------------------------------------------------------
+    # SCSI Controllers.
+    # Depending on the system these sections will either specify configuration
+    # of a preloaded built-in controller or load a new controller if there is no
+    # built-in controller.
+    #--------------------------------------------------------------------------
+    scsi_controller qla0 {
+        # scsi_id specifies the controller SCSI ID. Allowed values are 0..15.
+        scsi_id = 7;
+    }
+
+    scsi_controller qla1 {
+        scsi_id = 7;
+    }
+
+    #--------------------------------------------------------------------------
+    # SCSI Hard disk.
+    # Free version is limited to 4 disks.
+    #--------------------------------------------------------------------------
+    scsi_disk dka0 {
+        #----------------------------------------------------------------------
+        # scsi_bus - SCSI bus identifier. Currently it can be 0 or 1.
+        # This identifies the  numbr of SCSI controller to which the bus
+        # is connected.
+        #
+        # scsi_id  - SCSI id can be from 0 to 6. It must be unique.
+        # The controller is now fixed to 7.
+        #
+        # scsi_lun - SCSI logical utit number. It can be from 0 to 7.
+        #
+        # The device must have unique identification in the system.
+        #----------------------------------------------------------------------
+        scsi_bus = 0;
+        scsi_id = 0;
+        scsi_lun = 0;
+
+        #----------------------------------------------------------------------
+        # Disk image file. 
+        #----------------------------------------------------------------------
+        file	= 'porting.dd';
+
+        #----------------------------------------------------------------------
+        # Asynchronous IO. Default - yes.
+        # The SCSI Unit works asynchronous with respect to the SCSI controller.
+        # For very fast disk sometimes it makes sense to set the mode
+        # to synchronous, because it saves context switches.
+        # For instance, synchronous mode can be faster with memory mapped IO
+        #----------------------------------------------------------------------
+        async	= yes;
+
+        #----------------------------------------------------------------------
+        # Memory mapped IO. Default - no.
+        # Memory mapped IO can be faster with some workloads.
+        # It makes sense when you have a lot of host memory available.
+        #----------------------------------------------------------------------
+        mmap	= no;
+
+        #----------------------------------------------------------------------
+        # Emulate disk with removable medium. Default - no.
+        # This option has effect for regular files. 
+        # When the file is not present and cannot be opened, the emulator 
+        # returns the status "no medium" instead of "offline".
+        # The emulator also handles load/unload medium requests as 
+        # open/close the file handle. 
+        #----------------------------------------------------------------------
+        removable	= no;
+		
+        #----------------------------------------------------------------------
+        # Read caching. Default - yes.
+        # Currently this options is actually ignored and the caching is enabled.
+        #----------------------------------------------------------------------
+        caching = yes;
+
+        #----------------------------------------------------------------------
+        # Write through. Default - no.
+        #----------------------------------------------------------------------
+        write_through = no;
+        
+        #----------------------------------------------------------------------
+        # Tracing options
+        #----------------------------------------------------------------------
+    	trace_cmd = no;
+    	trace_sense = no;
+    	trace_io = no;
+    }
+
+    #--------------------------------------------------------------------------
+    # SCSI CD/DVD.
+    # See remarks about SCSI disk.
+    # The file options can specify either an ISO image or a CDROM device.
+    #--------------------------------------------------------------------------
+    scsi_cdrom iso {
+        scsi_id = 4;
+
+        #file    = '/home/artem/Test/iso/vms84.iso';        
+        file = '/dev/cdrom';
+                
+        async	= yes;		         			
+    }
+
+    #--------------------------------------------------------------------------
+    # SCSI Tape.
+    # See remarks about SCSI disk.
+    # SCSI tape is not available in the alphavm_free.
+    #
+    # Please note that auto_create and auto_load do not work with 
+    # multi-volume backups
+    #--------------------------------------------------------------------------
+    #scsi_tape tape0 {
+    #    scsi_bus = 0;
+    #    scsi_id = 5;
+    #	 scsi_lun = 0;
+    #    file    = '/home/artem/Test/foo.tap';
+    #
+    #	 # When writing limits the file size
+    #    max_size = 0;
+    #
+    #    # Specify whether the tape medium is loaded when the emulator starts.
+    #    # It is loaded if the tape exists.
+    #    initial_load = yes;
+    #
+    #    # Specify if the tape medium is automatically loaded 
+    #    # if the tape file exists.
+    #    auto_load = yes;
+    #
+    #    # Specifies whether the tape medium is created on attempt to load it,
+    #    # if it does not exist
+    #    auto_create = yes;
+    #}
+
+    #--------------------------------------------------------------------------
+    # SCSI Pass Through aka Direct SCSI aka Generic SCSI.
+    # This option is only available in AlphaVM-Pro.
+    # Use it to access physical SCSI tapes, physical SCSI disks, iSCSI disks etc.
+    # See the user manual for the details.
+    # A non-root user needs CAP_SYS_RAWIO capability to use this feature.
+    # Additionally, permission to access the device is needed.
+    #--------------------------------------------------------------------------
+    #scsi_unit scsipt0 {
+    #	 scsi_bus = 0;
+    #	 scsi_id = 6;
+    #	 scsi_lun = 0;
+    #    device = '/dev/sg3';
+    #	 async = yes;
+    #    emulate_mp1 = no;
+    #    suppress_vpd = no;
+    #	 scsi_version = 0;
+    #    trace_cmd = no;
+    #    trace_sense = no;
+    #    trace_io = no;
+    #}
+
+    #--------------------------------------------------------------------------
+    # Ethernet adapter.
+    # Currently there are two pre-loaded adapters.
+    # Later it will be possible to load network adapters.
+    # The emulated adaptor is of the Tulip family (DE435).
+    # Note that the real connection speed is determined by the host network 
+    # adapter. Even though we emulate a 10Megabit card, the connection can 
+    # be much faster.
+    # Later it will be possible to choose variants of Tulip and perhaps other 
+    # emulated adapters.
+    #--------------------------------------------------------------------------
+    ether eth0 {
+        #----------------------------------------------------------------------
+        # Emulated adaptrer type: 
+        # DEC 21040 is also known as DE435
+        # DEC 21143 is also known as DE500
+        #----------------------------------------------------------------------
+        type = dec21040;
+        #type = dec21143;
+
+        #----------------------------------------------------------------------
+        # Ethernet emulation backend: pcap or dummy.
+        # WinPCAP must be installed on Windows in order to use pcap.
+        # The dummy backend can be used to disable the interface mapping.
+        #----------------------------------------------------------------------
+        server = pcap;
+        #server = dummy;
+
+        #----------------------------------------------------------------------
+        # On linux you can check available interfaces with ifconfig -a.
+        # The interface specification has the form 
+        # interface = 'eth0';
+        # In order to use pcap the user must be root, or the vm must be 
+        # setuid to root, or the user must have capabilities such as 
+        # CAP_NET_RAW and CAP_NET_ADMIN.
+        #
+        # By default (if no interface is specified) 
+        # it picks the first available interface. 
+        #----------------------------------------------------------------------
+        interface = 'eth0';
+
+        #----------------------------------------------------------------------
+        # Emulated permanent physical address of NIC.
+        #
+        # Note that it is not the same as current station address,
+        # which can be kept in the emulated NIC ROM.
+        #  
+        # Important!!! 
+        # These addresses must be unique on your subnet.
+        # When you run several emulators, pay attention to it.
+        #----------------------------------------------------------------------
+        mac_address = 0x08002B000001;
+    }
+	
+    ether eth1 {
+        server = dummy;
+        mac_address = 0x08002B000002;
+    }
+}
+
+#------------------------------------------------------------------------------
+# This section specifies the emulated application parameters related to
+# its startup and behaviour with resepct to the host OS.
+# 
+# Working set is the amount of memory pages kept in physical memory.
+# Emulator is a performance critical application and this parameters must be
+# configurable to achieve finer tuning.
+# 
+# By default the working set limits are chosen depending on the available
+# host physical memory and on the guest memory.
+#
+# On Linux the minimal working set option is ignored.
+#------------------------------------------------------------------------------
+launch {
+    #min_working_set = 1024;
+    #max_working_set = 3072;
+
+    #--------------------------------------------------------------------------
+    # VM process affinity mask
+    #--------------------------------------------------------------------------
+    #process_affinity = 0xF0;
+}
+
+#------------------------------------------------------------------------------
+# Configuration of licensing.
+# The evaluation service listens at port 19991.
+# The production/dongle service listens at port 19992. The dongle service 
+# is in the executable keylok_service.exe.
+#
+# NOTE: AlphaVM-Free ignores this section.
+# If AlphaVM-Free gives a licensing error, it means that your configuration 
+# exceeds the limits allowed for AlphaVM-Free (1CPU, 512MB RAM etc)
+#------------------------------------------------------------------------------
+license {
+    ## Evaluation:
+    host='87.209.43.226';
+    port=19991;
+    username='myuser';
+    password='mypassword';
+
+    ## Dongle:
+    #host = 'localhost';
+    #port = 19992;
+    #username = 'sys0';
+    #password = 'default';     
+}

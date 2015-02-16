@@ -3,11 +3,11 @@ This repository contains a Vagrantfile for a OpenVMS porting box using the alpha
 
 ## Requirements ##
 To use this OpenVMS Porting Box you'll need:
-* a recent VirtualBox installation
-* a recent Vagrant installation
-* a recent AlphaVMFree kit for linux
+* a recent [VirtualBox](https://www.virtualbox.org) installation
+* a recent [Vagrant](https://www.vagrantup.com) installation
+* a recent [AlphaVMFree](http://emuvm.com/alphavm_free.php) kit for linux
 * a porting.dd file containing a complete OpenVMS 8.4 installation ready for besic porting activities
-* a terminal emulation program that supports raw IP connections
+* a terminal emulation program that supports raw IP connections like [socat](http://linux.die.net/man/1/socat) or [putty](http://www.putty.org)
 * official OpenVMS licenses or OpenVMS Hobbyist licenses
 
 ## Getting Started ##

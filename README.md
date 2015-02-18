@@ -26,9 +26,17 @@ Start the emulator with the command alphavm_free porting.emu.
 ## Booting OpenVMS ##
 To connect to the emulator console use a terminal emulation program that supports raw IP connections like socat on linux, socat is available on the Ubuntu linux VM so you could make a new vagrant ssh connection.
 You can also use Putty on Windows.
-The socat command is: `socat -,raw,echo=0,escape=0x1c tcp:127.0.0.1:20000`
-When connected to the console press enter to get a console prompt and enter `boot dka0` at the prompt.
+
+The socat command is:
+
+    socat -,raw,echo=0,escape=0x1c tcp:127.0.0.1:20000`
+
+When connected to the console press enter to get a console prompt and enter:
+
+    boot dka0
+
 OpenVMS should boot now. If asked for date and time, please enter the correct date and time.
+
 At the login prompt you can now login using the username system whit the password porting. You may be required to change the password.
 
 ## Entering licenses ##
@@ -39,24 +47,38 @@ The Hobbyist license file you received is a DCL command procedure with lots of p
 
 The only thing we can do is enter a few licenses manually so we can start TCP/IP and sftp the file to our box and execute it.
 The licenses you'll need to enter manually are called OPENVMS-ALPHA and UCX (the old name for the TCP/IP stack).
-Find these licenses in the hobbyist license file an execute the commands as shown in the file starting with `LICENSE RESISTER <name>`.
-After entering both licenses, you can load the licenses with the `LICENSE LOAD` command.
+Find these licenses in the hobbyist license file an execute the commands as shown in the file starting with:
 
-At this point you can start TCP/IP with `@SYS$STARTUP:TCPIP$STARTUP.COM`.
+    LICENSE RESISTER <name>
+	
+After entering both licenses, you can load the licenses with: 
+
+    LICENSE LOAD
+
+At this point you can start TCP/IP with:
+
+    @SYS$STARTUP:TCPIP$STARTUP.COM
 
 If all goes well should get an IP-address using DHCP and both NTP and SSH will be started. You should now be able to use sftp to transfer the Hobbyist license file over to your box.
 
-There is a bit of a second catch at this point because the license file you received is probably an MS-DOS text file and OpenVMS doesn't like MS-DOS text file very much. Now sftp should take care of these kind of problems, but unfortunately sftp isn't particularly smart in finding the correct conversion. On Windows it largely depends on the sftp client you're using. On Linux or a Mac, simply convert the license file to a unix text format using one of the many available methods. For those new to UNIX systems, you can use: `tr -d '\r' < input.file > output.file` 
+There is a bit of a second catch at this point because the license file you received is probably an MS-DOS text file and OpenVMS doesn't like MS-DOS text file very much. Now sftp should take care of these kind of problems, but unfortunately sftp isn't particularly smart in finding the correct conversion. On Windows it largely depends on the sftp client you're using. On Linux or a Mac, simply convert the license file to a unix text format using one of the many available methods.
+For those new to UNIX systems, you can use:
 
-Now you can sftp the Hobbyist license file over to your VMS box and execute it using: `@<filename>`
-	   
+    tr -d '\r' < input.file > output.file 
+
+Now you can sftp the Hobbyist license file over to your VMS box and execute it using:
+
+    @<filename>
+   
 ## TCP/IP setup ##
 As you have seen in the previous item, TCP/IP comes preconfigured.
 * The interface is configured to use DHCP
 * The NTP services is enabled and started automatically.
 * The SSH server en client services are enabled and started automatically.
 
-You can enable or disable TCPIP services using `@SYS$MANAGER$TCPIP$SETUP`
+You can enable or disable TCPIP services using:
+
+    @SYS$MANAGER$TCPIP$SETUP
 
 Be aware that the DHCP address is actually provided by VirtualBox and that the VirtualBox vm is using bridged networking by default.
 
@@ -64,7 +86,10 @@ Also note that port forwarding is configured to connect port 20000, your console
 
 ## Porting Software ##
 To be able to port common (UNIX/linux) software to OpenVMS you'll need an environment that looks and feels like a linux, usually bash, environment. This environment is provided by GNU is Not VMS or GNV for short.
-Before you start or any other of the GNV programs, enable extended parsing for your process by entering: `SET PROCESS/PARSE_STYLE=EXTENDED`.
+Before you start or any other of the GNV programs, enable extended parsing for your process by entering:
+
+    SET PROCESS/PARSE_STYLE=EXTENDED
+
 Also note that UNIX or UNIX like shells give a special meaning to the '$' sign. On OpenVMS '$' signs can be used in file an directory names and this can be confusing for some GNV tools. It is probably best to avoid file an directory names with '$' signs when porting software.
 
 ### GNV ###
@@ -82,5 +107,5 @@ GNV provides a set of wrappers for OpenVMS commands like CC, CPP, LIBRARY, and L
 Be aware there are hacks available to support certain situations. The GNV wrapper tools provide a help option to document these hacks.
 
 ## Shutting down the AlphaVMFree ##
-After normal OpenVMS `shutdown` use the emulators `power` command in the console to shut the emulator down.
+After normal OpenVMS `SHUTDOWN` use the emulators `power` command in the console to shut the emulator down.
 Please don't use `Ctrl-C` to shut down the emulator.
